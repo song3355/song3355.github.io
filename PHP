@@ -1,0 +1,19 @@
+<?php
+$n = 30;
+$sum = 0;
+for($i=1; $i<$n; $i++) {
+    $sum += $i;
+    echo("$i + ");
+} 
+echo("$n = $sum");
+?>
+
+<?php
+$n = 30;
+$prod = 1;
+for($i = 1; $i <= $n; $i++) {
+    $prod *= $i;
+    echo("$i * ");
+}
+echo("$n = $prod");
+?>
