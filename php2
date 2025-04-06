@@ -1,0 +1,16 @@
+<?php
+$n = 30; 
+$data = array();
+for ($i = 0; $i < $n; $i++) {
+    $data[$i] = rand(10, 100);
+}
+echo "생성된 결과: <br>";
+foreach ($data as $num) {
+    echo $num . " ";
+}
+sort($data);
+echo "<br><br>올림차순으로 소팅한 결과: <br>";
+foreach ($data as $num) {
+    echo $num . " ";
+}
+?>
