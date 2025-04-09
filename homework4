@@ -10,31 +10,24 @@ class ShapeCalculator {
         $this->result = null;
     }
 
-    // 각 도형의 면적과 체적 계산
     public function calculate() {
         switch ($this->active_shape) {
             case 'triangle':
-                // 삼각형 면적 = (밑변 * 높이) / 2
                 $this->result = ($this->active_values['base'] * $this->active_values['height']) / 2;
                 break;
             case 'rectangle':
-                // 직사각형 면적 = 가로 * 세로
                 $this->result = $this->active_values['width'] * $this->active_values['height'];
                 break;
             case 'circle':
-                // 원 면적 = pi * 반지름^2
                 $this->result = pi() * pow($this->active_values['radius'], 2);
                 break;
             case 'cuboid':
-                // 직육면체 체적 = 가로 * 세로 * 높이
                 $this->result = $this->active_values['width'] * $this->active_values['length'] * $this->active_values['height'];
                 break;
             case 'cylinder':
-                // 원통 체적 = pi * 반지름^2 * 높이
                 $this->result = pi() * pow($this->active_values['radius'], 2) * $this->active_values['height'];
                 break;
             case 'sphere':
-                // 구 체적 = (4/3) * pi * 반지름^3
                 $this->result = (4 / 3) * pi() * pow($this->active_values['radius'], 3);
                 break;
             default:
