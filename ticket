@@ -1,0 +1,122 @@
+<?php
+// DB 연결
+$conn = mysqli_connect("localhost", "root", "", "ticket_db");
+
+// 가격 정의
+$ticket_types = [
+    ["name" => "입장권", "child_price" => 7000, "adult_price" => 10000],
+    ["name" => "BIG3", "child_price" => 12000, "adult_price" => 18000],
+    ["name" => "자유이용권", "child_price" => 21000, "adult_price" => 28000],
+    ["name" => "연간이용권", "child_price" => 7000, "adult_price" => 90000],
+];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST["customer_name"];
+    $total = 0;
+
+    for ($i = 0; $i < count($ticket_types); $i++) {
+        $child_qty = (int)$_POST["child"][$i];
+        $adult_qty = (int)$_POST["adult"][$i];
+
+        if ($child_qty > 0) {
+            $price = $ticket_types[$i]["child_price"];
+            $sum = $price * $child_qty;
+            $total += $sum;
+            mysqli_query($conn, "INSERT INTO tickets (customer_name, ticket_type, person_type, quantity, price_per_ticket, total_price)
+                                 VALUES ('$name', '{$ticket_types[$i]["name"]}', '어린이', $child_qty, $price, $sum)");
+        }
+        if ($adult_qty > 0) {
+            $price = $ticket_types[$i]["adult_price"];
+            $sum = $price * $adult_qty;
+            $total += $sum;
+            mysqli_query($conn, "INSERT INTO tickets (customer_name, ticket_type, person_type, quantity, price_per_ticket, total_price)
+                                 VALUES ('$name', '{$ticket_types[$i]["name"]}', '어른', $adult_qty, $price, $sum)");
+        }
+    }
+
+    echo "<h3>{$name} 고객님 감사합니다.</h3>";
+    echo "<p>" . date("Y년 m월 d일 A h:i") . "</p>";
+    echo "<strong>총 합계: " . number_format($total) . "원</strong><hr>";
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>입장권 예매</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: auto; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        h2, form { text-align: center; }
+    </style>
+</head>
+<body>
+    <h2>놀이공원 입장권 예약</h2>
+    <form method="post">
+        고객 성명: <input type="text" name="customer_name" required><br><br>
+        <table>
+            <tr>
+                <th>번호</th><th>구분</th><th>어린이</th><th>어른</th>
+            </tr>
+            <?php foreach ($ticket_types as $i => $t): ?>
+            <tr>
+                <td><?= $i + 1 ?></td>
+                <td><?= $t["name"] ?></td>
+                <td>
+                    <?= number_format($t["child_price"]) ?>원
+                    <select name="child[]">
+                        <?php for ($j = 0; $j <= 5; $j++) echo "<option>$j</option>"; ?>
+                    </select>
+                </td>
+                <td>
+                    <?= number_format($t["adult_price"]) ?>원
+                    <select name="adult[]">
+                        <?php for ($j = 0; $j <= 5; $j++) echo "<option>$j</option>"; ?>
+                    </select>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table><br>
+        <input type="submit" value="제출">
+    </form>
+
+    <hr>
+    <h2>전체 주문 내역</h2>
+    <table>
+        <tr><th>고객명</th><th>티켓</th><th>대상</th><th>수량</th><th>단가</th><th>합계</th><th>주문시간</th></tr>
+        <?php
+        $result = mysqli_query($conn, "SELECT * FROM tickets ORDER BY created_at DESC");
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo "<tr>
+                    <td>{$row['customer_name']}</td>
+                    <td>{$row['ticket_type']}</td>
+                    <td>{$row['person_type']}</td>
+                    <td>{$row['quantity']}</td>
+                    <td>" . number_format($row['price_per_ticket']) . "원</td>
+                    <td>" . number_format($row['total_price']) . "원</td>
+                    <td>{$row['created_at']}</td>
+                  </tr>";
+        }
+        ?>
+    </table>
+</body>
+</html>
+
+
+
+
+
+CREATE DATABASE ticket_db;
+USE ticket_db;
+
+CREATE TABLE tickets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    ticket_type VARCHAR(50),
+    person_type ENUM('어린이', '어른'),
+    quantity INT,
+    price_per_ticket INT,
+    total_price INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
